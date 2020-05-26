@@ -2,7 +2,7 @@ import logging
 import os
 
 import click
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.sql.expression import text
 
 SNOWFLAKE_USERNAME = os.environ["SNOWFLAKE_USERNAME"]
@@ -16,14 +16,14 @@ SNOWFLAKE_ROLE = os.environ["SNOWFLAKE_ROLE"]
 @click.option("--drop", "action", flag_value="drop")
 @click.option("--database")
 @click.option("--schema")
-def manage_database(database: str, schema: str, action: str):
+def manage_database(database: str, action: str):
     if action == "create":
         stmts = [
-            text("CREATE OR REPLACE DATABASE :database"),
-            text("GRANT USAGE ON DATABASE :database TO ROLE PUBLIC"),
+            text("CREATE OR REPLACE DATABASE IDENTIFIER(:database)"),
+            text("GRANT USAGE ON DATABASE IDENTIFIER(:database) TO ROLE PUBLIC"),
         ]
     elif action == "drop":
-        stmts = [text("DROP DATABASE :database")]
+        stmts = [text("DROP DATABASE IDENTIFIER(:database)")]
     else:
         stmts = []  # do nothing
 
@@ -31,7 +31,7 @@ def manage_database(database: str, schema: str, action: str):
         f"snowflake://{SNOWFLAKE_USERNAME}:{SNOWFLAKE_PASSWORD}@{SNOWFLAKE_ACCOUNT}"
     ).begin() as tx:
         for stmt in stmts:
-            tx.execute(stmt, database=database)
+            tx.execute(stmt, database=f'"{database}"')
 
 
 if __name__ == "__main__":
