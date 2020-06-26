@@ -15,16 +15,16 @@ SNOWFLAKE_ROLE = os.environ["SNOWFLAKE_ROLE"]
 @click.option("--drop", "action", flag_value="drop")
 @click.option("--database")
 @click.option("--schema")
-def manage_database(database: str, schema: str, action: str):
+def manage_database(database: str, action: str):
+    database = database.replace("-", "_")
+
     if action == "create":
         stmts = [
             f'CREATE OR REPLACE DATABASE "{database}"',
             f'GRANT USAGE ON DATABASE "{database}" TO ROLE PUBLIC',
         ]
     elif action == "drop":
-        stmts = [
-            f'DROP DATABASE "{database}"',
-        ]
+        stmts = [f'DROP DATABASE IF EXISTS "{database}"']
     else:
         stmts = []  # do nothing
 
