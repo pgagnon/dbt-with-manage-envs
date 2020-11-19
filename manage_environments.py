@@ -20,7 +20,9 @@ def manage_database(database: str, action: str):
 
     if action == "create":
         stmts = [
-            f'CREATE OR REPLACE DATABASE "{database}"',
+            f'CREATE OR REPLACE DATABASE "{database}" CLONE "ANALYTICS_PRODUCTION"',
+            f'GRANT OWNERSHIP ON DATABASE "{database}" TO ROLE DBT_DEVELOPMENT REVOKE CURRENT GRANTS',
+            f'GRANT OWNERSHIP ON ALL SCHEMAS IN DATABASE "{database}" TO ROLE DBT_DEVELOPMENT REVOKE CURRENT GRANTS',
             f'GRANT USAGE ON DATABASE "{database}" TO ROLE PUBLIC',
         ]
     elif action == "drop":
