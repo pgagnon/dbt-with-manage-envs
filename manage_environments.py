@@ -14,7 +14,6 @@ SNOWFLAKE_ROLE = os.environ["SNOWFLAKE_ROLE"]
 @click.option("--create", "action", flag_value="create")
 @click.option("--drop", "action", flag_value="drop")
 @click.option("--database")
-@click.option("--schema")
 def manage_database(database: str, action: str):
     database = database.replace("-", "_")
 
