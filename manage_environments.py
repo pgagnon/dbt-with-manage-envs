@@ -5,6 +5,7 @@ import click
 from sqlalchemy import create_engine
 from sqlalchemy.sql import Select
 from sqlalchemy import literal_column
+from sqlalchemy import Engine
 
 SNOWFLAKE_USERNAME = os.environ["SNOWFLAKE_USERNAME"]
 SNOWFLAKE_PASSWORD = os.environ["SNOWFLAKE_PASSWORD"]
@@ -12,7 +13,7 @@ SNOWFLAKE_ACCOUNT = os.environ["SNOWFLAKE_ACCOUNT"]
 SNOWFLAKE_ROLE = os.environ["SNOWFLAKE_ROLE"]
 
 
-def change_objects_ownership(engine: Engine, database: str, target_role: str):
+def change_objects_ownership(engine: Engine, database: str, target_role: str) -> None:
     stmt = Select(
         [
             literal_column("table_type"),
