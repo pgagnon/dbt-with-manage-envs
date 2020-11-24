@@ -1,8 +1,9 @@
 import logging
 import os
+from typing import Optional
 
 import click
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.sql import Select
 from sqlalchemy import literal_column
 from sqlalchemy.engine import Engine
