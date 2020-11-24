@@ -5,7 +5,7 @@ import click
 from sqlalchemy import create_engine
 from sqlalchemy.sql import Select
 from sqlalchemy import literal_column
-from sqlalchemy import Engine
+from sqlalchemy.engine import Engine
 
 SNOWFLAKE_USERNAME = os.environ["SNOWFLAKE_USERNAME"]
 SNOWFLAKE_PASSWORD = os.environ["SNOWFLAKE_PASSWORD"]
