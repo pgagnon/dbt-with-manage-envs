@@ -3,7 +3,7 @@ import os
 
 import click
 from sqlalchemy import create_engine
-from sqlalchemy import Select
+from sqlalchemy.sql import Select
 from sqlalchemy import literal_column
 
 SNOWFLAKE_USERNAME = os.environ["SNOWFLAKE_USERNAME"]
