@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.sql import Select
 from sqlalchemy import literal_column
 from sqlalchemy.engine import Engine
+from snowflake.sqlalchemy import URL
 
 SNOWFLAKE_USERNAME = os.environ["SNOWFLAKE_USERNAME"]
 SNOWFLAKE_PASSWORD = os.environ["SNOWFLAKE_PASSWORD"]
@@ -43,19 +44,16 @@ def change_objects_ownership(engine: Engine, database: str, target_role: str) ->
 
 
 def change_functions_ownership(engine: Engine, database: str, target_role: str):
-    stmt = "SHOW TERSE USER FUNCTIONS"
+    stmt = f"SHOW USER FUNCTIONS IN DATABASE {database}"
 
     with engine.begin() as tx:
-        for object in [
-            object
-            for object in (dict(x) for x in tx.execute(stmt))
-            if object["catalog_name"] == database
-        ]:
+        for object in [dict(x) for x in tx.execute(stmt).fetchall()]:
             func_handle = object["arguments"].split(" RETURN ")[0]
             schema = object["schema_name"]
 
             tx.execute(
-                f"GRANT OWNERSHIP ON FUNCTION {database}.{schema}.{func_handle} TO ROLE {target_role} REVOKE CURRENT GRANTS"
+                f"GRANT OWNERSHIP ON FUNCTION {database}.{schema}.{func_handle} "
+                f"TO ROLE {target_role} REVOKE CURRENT GRANTS"
             ).fetchall()
 
 
@@ -80,7 +78,13 @@ def manage_database(database: str, action: str, target_role: Optional[str] = Non
         stmts = []  # do nothing
 
     engine = create_engine(
-        f"snowflake://{SNOWFLAKE_USERNAME}:{SNOWFLAKE_PASSWORD}@{SNOWFLAKE_ACCOUNT}"
+        URL(
+            account=SNOWFLAKE_ACCOUNT,
+            user=SNOWFLAKE_USERNAME,
+            password=SNOWFLAKE_PASSWORD,
+            role=SNOWFLAKE_ROLE,
+            database=database,
+        )
     )
 
     with engine.begin() as tx:
