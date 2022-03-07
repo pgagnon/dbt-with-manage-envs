@@ -56,6 +56,14 @@ def change_functions_ownership(engine: Engine, database: str, target_role: str):
                 f"TO ROLE {target_role} REVOKE CURRENT GRANTS"
             ).fetchall()
 
+def change_masking_policy_ownership(engine: Engine, database: str, target_role: str):
+    stmt = f"SHOW MASKING POLICIES IN DATABASE {database}"
+
+    with engine.begin() as tx:
+        for policy_info in tx.execute(stmt).fetchall():
+            tx.execute(f"GRANT OWNERSHIP ON MASKING POLICY {policy_info[2]}.{policy_info[3]}.{policy_info[1]}"
+                       f"TO ROLE {target_role} REVOKE CURRENT GRANTS"
+                       ).fetchall()
 
 @click.command()
 @click.option("--create", "action", flag_value="create")
@@ -94,6 +102,7 @@ def manage_database(database: str, action: str, target_role: Optional[str] = Non
     if action == "create":
         change_objects_ownership(engine, database, target_role)
         change_functions_ownership(engine, database, target_role)
+        change_masking_policy_ownership(engine, database, target_role)
 
 
 if __name__ == "__main__":
